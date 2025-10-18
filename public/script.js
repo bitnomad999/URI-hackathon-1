@@ -13,6 +13,7 @@ const deselectAllBtn = document.getElementById('deselectAllBtn');
 // State
 let extractedEvents = [];
 
+
 // Sample data for testing
 const SAMPLE_TEXT = `University Events Calendar
 
@@ -44,6 +45,7 @@ extractBtn.addEventListener('click', async () => {
     }
     
     setLoading(true);
+    
     
     try {
         const response = await fetch('/api/extract-events', {
@@ -86,6 +88,7 @@ function setLoading(loading) {
         extractBtnLoader.style.display = 'none';
     }
 }
+
 
 // Display Events
 function displayEvents(events) {
@@ -266,3 +269,4 @@ function downloadIcs(icsContent) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
+

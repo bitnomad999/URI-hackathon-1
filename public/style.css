@@ -231,6 +231,7 @@ footer a {
     text-decoration: underline;
 }
 
+
 /* Responsive */
 @media (max-width: 600px) {
     header h1 {
@@ -248,4 +249,5 @@ footer a {
     .btn-primary {
         flex: unset;
     }
+    
 }
