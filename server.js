@@ -24,7 +24,7 @@ app.use(express.static('public'));
 // Initialize Gemini AI
 const ai = new GoogleGenAI({});
 
-// API endpoint to chat with Gemini
+// API endpoint to chat with Gemini (streaming)
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
@@ -35,17 +35,35 @@ app.post('/api/chat', async (req, res) => {
 
     console.log(`📩 Received: ${message}`);
 
-    const response = await ai.models.generateContent({
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Use streaming API
+    const result = await ai.models.generateContentStream({
       model: "gemini-2.5-flash",
       contents: message,
     });
 
-    console.log(`✅ Response sent`);
+    // Stream each chunk to the client
+    for await (const chunk of result.stream) {
+      if (chunk.text) {
+        // Send chunk as SSE data
+        res.write(`data: ${JSON.stringify({ text: chunk.text })}\n\n`);
+      }
+    }
 
-    res.json({ response: response.text });
+    // Signal end of stream
+    res.write('data: [DONE]\n\n');
+    res.end();
+    
+    console.log(`✅ Stream complete`);
+
   } catch (error) {
     console.error('❌ Error:', error.message);
-    res.status(500).json({ error: error.message });
+    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    res.end();
   }
 });
 

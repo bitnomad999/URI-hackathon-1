@@ -49,7 +49,7 @@ A vanilla JavaScript project using the Google Gen AI SDK to interact with Gemini
 
 ## Running the Project
 
-### Option 1: Web Interface (Recommended)
+### Option 1: Web Interface (Recommended) - WITH STREAMING! ⚡
 
 Run the web server and open in your browser:
 
@@ -59,17 +59,27 @@ npm run web
 
 Then open your browser and visit: **http://localhost:3000**
 
-You'll see a beautiful chat interface where you can interact with Gemini AI in real-time!
+You'll see a beautiful chat interface where you can interact with Gemini AI. **Text streams in real-time** as it's generated - no more waiting!
 
-### Option 2: Command Line
+### Option 2: Command Line (Streaming)
 
-Run the simple command-line version:
+See the AI response stream in live as it's generated:
+
+```bash
+npm run stream
+```
+
+Watch the text appear word-by-word in your terminal!
+
+### Option 3: Command Line (Non-streaming)
+
+Run the simple command-line version (waits for full response):
 
 ```bash
 npm start
 ```
 
-This will send a single request to Gemini and display the response in the console.
+This will send a single request to Gemini and display the complete response.
 
 ## Troubleshooting
 

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
+    "stream": "node index-stream.js",
     "web": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

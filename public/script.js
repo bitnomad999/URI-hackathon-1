@@ -39,8 +39,17 @@ async function sendMessage() {
     // Disable input while processing
     setLoading(true);
     
+    // Create placeholder for AI response
+    const aiMessageDiv = document.createElement('div');
+    aiMessageDiv.className = 'message ai';
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = ''; // Start empty
+    aiMessageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(aiMessageDiv);
+    
     try {
-        // Send request to server
+        // Send request to server with streaming
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -49,17 +58,51 @@ async function sendMessage() {
             body: JSON.stringify({ message }),
         });
         
-        const data = await response.json();
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
         
-        if (response.ok) {
-            // Add AI response to chat
-            addMessage(data.response, 'ai');
-        } else {
-            // Show error message
-            addMessage(`Error: ${data.error}`, 'ai');
+        // Read the stream
+        while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) break;
+            
+            // Decode the chunk
+            buffer += decoder.decode(value, { stream: true });
+            
+            // Process complete SSE messages
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // Keep incomplete line in buffer
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const data = line.slice(6); // Remove 'data: ' prefix
+                    
+                    if (data === '[DONE]') {
+                        // Stream finished
+                        break;
+                    }
+                    
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (parsed.text) {
+                            // Append text to the message
+                            contentDiv.textContent += parsed.text;
+                            // Auto-scroll to bottom
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        } else if (parsed.error) {
+                            contentDiv.textContent = `Error: ${parsed.error}`;
+                        }
+                    } catch (e) {
+                        // Ignore parse errors
+                    }
+                }
+            }
         }
+        
     } catch (error) {
-        addMessage(`Error: ${error.message}`, 'ai');
+        contentDiv.textContent = `Error: ${error.message}`;
     } finally {
         setLoading(false);
         messageInput.focus();
