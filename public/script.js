@@ -1,146 +1,254 @@
-const chatContainer = document.getElementById('chatContainer');
-const messageInput = document.getElementById('messageInput');
-const sendButton = document.getElementById('sendButton');
-const buttonText = document.getElementById('buttonText');
-const buttonLoader = document.getElementById('buttonLoader');
+// DOM Elements
+const inputText = document.getElementById('inputText');
+const sampleBtn = document.getElementById('sampleBtn');
+const extractBtn = document.getElementById('extractBtn');
+const extractBtnText = document.getElementById('extractBtnText');
+const extractBtnLoader = document.getElementById('extractBtnLoader');
+const eventsSection = document.getElementById('eventsSection');
+const eventsList = document.getElementById('eventsList');
+const generateIcsBtn = document.getElementById('generateIcsBtn');
 
-// Remove welcome message when first message is sent
-let isFirstMessage = true;
+// State
+let extractedEvents = [];
 
-// Handle Enter key to send message (Shift+Enter for new line)
-messageInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+// Sample data for testing
+const SAMPLE_TEXT = `University Events Calendar
+
+Technology Conference 2025
+Join us for the Annual Technology and Innovation Conference on October 25, 2025 at 2:00 PM at the University Convention Center. Network with industry leaders and explore cutting-edge technologies.
+
+Guest Lecture Series
+Professor Jane Smith will present "The Future of AI" on November 3, 2025 at 4:30 PM in Science Hall Room 301.
+
+Career Fair
+The Fall Career Fair will be held on November 15, 2025 from 10:00 AM to 3:00 PM at the Student Union Building. Over 100 companies will be recruiting.
+
+Hackathon 2025
+URI Hackathon will take place December 1-2, 2025 starting at 5:00 PM at the Engineering Building. Registration opens November 1st.`;
+
+// Sample Data Button
+sampleBtn.addEventListener('click', () => {
+    inputText.value = SAMPLE_TEXT;
+    inputText.focus();
 });
 
-async function sendMessage() {
-    const message = messageInput.value.trim();
+// Extract Events
+extractBtn.addEventListener('click', async () => {
+    const text = inputText.value.trim();
     
-    if (!message) return;
-    
-    // Remove welcome message on first interaction
-    if (isFirstMessage) {
-        const welcomeMessage = chatContainer.querySelector('.welcome-message');
-        if (welcomeMessage) {
-            welcomeMessage.remove();
-        }
-        isFirstMessage = false;
+    if (!text) {
+        alert('Please enter some text to extract events from.');
+        return;
     }
     
-    // Add user message to chat
-    addMessage(message, 'user');
-    
-    // Clear input
-    messageInput.value = '';
-    messageInput.style.height = 'auto';
-    
-    // Disable input while processing
     setLoading(true);
     
-    // Create placeholder for AI response
-    const aiMessageDiv = document.createElement('div');
-    aiMessageDiv.className = 'message ai';
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.textContent = ''; // Start empty
-    aiMessageDiv.appendChild(contentDiv);
-    chatContainer.appendChild(aiMessageDiv);
-    
     try {
-        // Send request to server with streaming
-        const response = await fetch('/api/chat', {
+        const response = await fetch('/api/extract-events', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message }),
+            body: JSON.stringify({ text }),
         });
         
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        const data = await response.json();
         
-        // Read the stream
-        while (true) {
-            const { done, value } = await reader.read();
-            
-            if (done) break;
-            
-            // Decode the chunk
-            buffer += decoder.decode(value, { stream: true });
-            
-            // Process complete SSE messages
-            const lines = buffer.split('\n');
-            buffer = lines.pop(); // Keep incomplete line in buffer
-            
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.slice(6); // Remove 'data: ' prefix
-                    
-                    if (data === '[DONE]') {
-                        // Stream finished
-                        break;
-                    }
-                    
-                    try {
-                        const parsed = JSON.parse(data);
-                        if (parsed.text) {
-                            // Append text to the message
-                            contentDiv.textContent += parsed.text;
-                            // Auto-scroll to bottom
-                            chatContainer.scrollTop = chatContainer.scrollHeight;
-                        } else if (parsed.error) {
-                            contentDiv.textContent = `Error: ${parsed.error}`;
-                        }
-                    } catch (e) {
-                        // Ignore parse errors
-                    }
-                }
+        if (response.ok) {
+            if (data.events && data.events.length > 0) {
+                extractedEvents = data.events;
+                displayEvents(data.events);
+                eventsSection.style.display = 'block';
+                eventsSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('No events found in the text. Try different text or check your input.');
             }
+        } else {
+            alert(`Error: ${data.error}`);
         }
-        
     } catch (error) {
-        contentDiv.textContent = `Error: ${error.message}`;
+        console.error('Error:', error);
+        alert(`Error extracting events: ${error.message}`);
     } finally {
         setLoading(false);
-        messageInput.focus();
     }
-}
-
-function addMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.textContent = text;
-    
-    messageDiv.appendChild(contentDiv);
-    chatContainer.appendChild(messageDiv);
-    
-    // Scroll to bottom
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function setLoading(loading) {
-    sendButton.disabled = loading;
-    messageInput.disabled = loading;
-    
-    if (loading) {
-        buttonText.style.display = 'none';
-        buttonLoader.style.display = 'inline-block';
-    } else {
-        buttonText.style.display = 'inline';
-        buttonLoader.style.display = 'none';
-    }
-}
-
-// Auto-resize textarea
-messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
 });
 
+function setLoading(loading) {
+    extractBtn.disabled = loading;
+    if (loading) {
+        extractBtnText.style.display = 'none';
+        extractBtnLoader.style.display = 'inline-block';
+    } else {
+        extractBtnText.style.display = 'inline';
+        extractBtnLoader.style.display = 'none';
+    }
+}
 
+// Display Events
+function displayEvents(events) {
+    eventsList.innerHTML = '';
+    
+    events.forEach(event => {
+        const card = document.createElement('div');
+        card.className = 'event-card selected';
+        card.dataset.id = event.id;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'event-checkbox';
+        checkbox.checked = true;
+        checkbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+        
+        const title = document.createElement('div');
+        title.className = 'event-title';
+        title.textContent = event.summary;
+        
+        const details = document.createElement('div');
+        details.className = 'event-details';
+        
+        // Format date/time
+        const dateTime = new Date(event.startDateTime);
+        const dateTimeStr = dateTime.toLocaleString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+        
+        const dateDetail = document.createElement('div');
+        dateDetail.className = 'event-detail';
+        dateDetail.innerHTML = `<span class="event-detail-icon">📅</span><span>${dateTimeStr}</span>`;
+        details.appendChild(dateDetail);
+        
+        if (event.location) {
+            const locationDetail = document.createElement('div');
+            locationDetail.className = 'event-detail';
+            locationDetail.innerHTML = `<span class="event-detail-icon">📍</span><span>${event.location}</span>`;
+            details.appendChild(locationDetail);
+        }
+        
+        if (event.description) {
+            const descDetail = document.createElement('div');
+            descDetail.className = 'event-detail';
+            descDetail.innerHTML = `<span class="event-detail-icon">📝</span><span>${event.description}</span>`;
+            details.appendChild(descDetail);
+        }
+        
+        card.appendChild(checkbox);
+        card.appendChild(title);
+        card.appendChild(details);
+        
+        // Click card to toggle checkbox
+        card.addEventListener('click', (e) => {
+            if (e.target !== checkbox) {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        eventsList.appendChild(card);
+    });
+}
+
+// Generate ICS File
+generateIcsBtn.addEventListener('click', () => {
+    const selectedCheckboxes = document.querySelectorAll('.event-checkbox:checked');
+    
+    if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one event.');
+        return;
+    }
+    
+    const selectedIds = Array.from(selectedCheckboxes).map(cb => {
+        return parseInt(cb.parentElement.dataset.id);
+    });
+    
+    const selectedEvents = extractedEvents.filter(event => 
+        selectedIds.includes(event.id)
+    );
+    
+    const icsContent = generateIcs(selectedEvents);
+    downloadIcs(icsContent);
+});
+
+function generateIcs(events) {
+    let ics = 'BEGIN:VCALENDAR\r\n';
+    ics += 'VERSION:2.0\r\n';
+    ics += 'PRODID:-//AI Event Extractor//EN\r\n';
+    ics += 'CALSCALE:GREGORIAN\r\n';
+    ics += 'METHOD:PUBLISH\r\n';
+    
+    events.forEach(event => {
+        const now = new Date();
+        const dtstamp = formatIcsDateTime(now);
+        
+        // Parse the start date/time
+        const startDate = new Date(event.startDateTime);
+        const dtstart = formatIcsDateTime(startDate);
+        
+        // Default end time to 1 hour after start
+        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+        const dtend = formatIcsDateTime(endDate);
+        
+        ics += 'BEGIN:VEVENT\r\n';
+        ics += `UID:${event.id}-${dtstamp}@ai-event-extractor.com\r\n`;
+        ics += `DTSTAMP:${dtstamp}\r\n`;
+        ics += `DTSTART:${dtstart}\r\n`;
+        ics += `DTEND:${dtend}\r\n`;
+        ics += `SUMMARY:${escapeIcsText(event.summary)}\r\n`;
+        
+        if (event.location) {
+            ics += `LOCATION:${escapeIcsText(event.location)}\r\n`;
+        }
+        
+        if (event.description) {
+            ics += `DESCRIPTION:${escapeIcsText(event.description)}\r\n`;
+        }
+        
+        ics += 'END:VEVENT\r\n';
+    });
+    
+    ics += 'END:VCALENDAR\r\n';
+    return ics;
+}
+
+function formatIcsDateTime(date) {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    
+    return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+}
+
+function escapeIcsText(text) {
+    if (!text) return '';
+    return text
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\n/g, '\\n');
+}
+
+function downloadIcs(icsContent) {
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `events-${Date.now()}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}

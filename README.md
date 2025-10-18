@@ -1,117 +1,104 @@
-# 📅 AI Event Extractor with Gemini
+# 📅 AI Event Extractor
 
 Extract events from any text and generate calendar files using Google's Gemini AI.
 
-## 🚀 Two Versions Available
+## 🚀 Quick Start
 
-### 1. GitHub Pages Version (Static)
-**✨ NEW!** A fully client-side version perfect for personal use.
-- No server required
-- Users input their own API key
-- Works directly in browser
-- **[View in /docs folder](./docs/)**
-
-### 2. Node.js Server Version
-Original chat interface with streaming support.
-- Secure API key storage on server
-- Web chat interface
-- Command-line tools
-
-## Prerequisites
-
-- Node.js v18+ (currently using v22.20.0)
-- A Google AI Studio API key
-
-## Setup
-
-1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-
-2. Set the API key as an environment variable:
-
-   **Windows (PowerShell):**
-   ```powershell
-   $env:GEMINI_API_KEY="your_api_key_here"
-   ```
-
-   **Windows (Command Prompt):**
-   ```cmd
-   set GEMINI_API_KEY=your_api_key_here
-   ```
-
-   **Linux/Mac:**
+1. **Install dependencies:**
    ```bash
-   export GEMINI_API_KEY="your_api_key_here"
+   npm install
    ```
 
-3. Run the example:
-
-   **Option 1: Using the batch file (easiest on Windows):**
-   ```cmd
-   run.bat
+2. **Create `.env` file:**
    ```
+   GEMINI_API_KEY=your_api_key_here
+   ```
+   Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
-   **Option 2: Using npm directly:**
-   
-   If you encounter PowerShell execution policy errors, use Command Prompt:
-   ```cmd
+3. **Run the server:**
+   ```bash
    npm start
    ```
-   
-   Or use the full path in PowerShell:
-   ```powershell
-   C:\nvm4w\nodejs\npm.cmd start
+
+4. **Open in browser:**
+   ```
+   http://localhost:3000
    ```
 
-## Running the Project
+## ✨ Features
 
-### Option 1: Web Interface (Recommended) - WITH STREAMING! ⚡
+- 🤖 **AI-Powered**: Uses Gemini 2.5 Flash with structured output
+- 📝 **Smart Extraction**: Paste any text, get events automatically
+- ✅ **Event Selection**: Choose which events to include
+- 📥 **Calendar Export**: Download standard .ics files
+- 🎨 **Beautiful UI**: Modern, responsive interface
 
-Run the web server and open in your browser:
+## 🎯 How It Works
 
-```bash
-npm run web
+1. Paste unstructured text (emails, schedules, news articles)
+2. AI extracts event details (title, date, time, location)
+3. Review and select events you want
+4. Download as .ics file
+5. Import to Google Calendar, Outlook, Apple Calendar, etc.
+
+## 📋 Example Input
+
+```
+Tech Conference 2025
+Join us on October 25, 2025 at 2:00 PM at the Convention Center.
+
+Workshop: AI Basics
+December 10, 2025 at 3:30 PM in Room 204.
 ```
 
-Then open your browser and visit: **http://localhost:3000**
+## 🔧 Tech Stack
 
-You'll see a beautiful chat interface where you can interact with Gemini AI. **Text streams in real-time** as it's generated - no more waiting!
+- **Backend**: Node.js + Express
+- **AI**: Google Gemini 2.5 Flash
+- **Frontend**: Vanilla JavaScript
+- **Format**: iCalendar (.ics)
 
-### Option 2: Command Line (Streaming)
+## 📁 Project Structure
 
-See the AI response stream in live as it's generated:
-
-```bash
-npm run stream
+```
+├── server.js          # Express server with AI integration
+├── public/            # Frontend files
+│   ├── index.html    # Event extraction interface
+│   ├── style.css     # Styling
+│   └── script.js     # Client-side logic
+├── .env              # API key (not committed)
+├── .gitignore        # Ignore node_modules and .env
+└── package.json      # Dependencies and scripts
 ```
 
-Watch the text appear word-by-word in your terminal!
+## 🔒 Security
 
-### Option 3: Command Line (Non-streaming)
+- API key stored in `.env` file on server
+- Never exposed to client
+- `.gitignore` prevents committing secrets
 
-Run the simple command-line version (waits for full response):
+## 🐛 Troubleshooting
 
-```bash
-npm start
+### Server won't start
+- Make sure Node.js v18+ is installed
+- Check `.env` file exists with valid API key
+- Run `npm install` first
+
+### No events extracted
+- Make sure text includes dates and times
+- Try more explicit date formats
+- Check API key is valid
+
+### PowerShell errors
+Use Command Prompt or run:
+```powershell
+C:\nvm4w\nodejs\npm.cmd start
 ```
 
-This will send a single request to Gemini and display the complete response.
+## 📄 License
 
-## Troubleshooting
+MIT License
 
-### PowerShell Execution Policy Error
+---
 
-If you see an error like "running scripts is disabled on this system", this is a Windows PowerShell security feature. You have several options:
-
-1. **Use Command Prompt instead** (recommended): Open Command Prompt and run `npm start`
-2. **Use the batch file**: Double-click `run.bat` or run it from Command Prompt
-3. **Use the full path**: Run `C:\nvm4w\nodejs\npm.cmd start` in PowerShell
-4. **Change execution policy** (requires admin): Run PowerShell as Administrator and execute:
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
-
-## Learn More
-
-- [Google Gen AI SDK Documentation](https://ai.google.dev/gemini-api/docs)
-- [API Reference](https://ai.google.dev/api/generate-content)
-
+**Built for URI Hackathon 2025** 🎓

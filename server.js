@@ -24,46 +24,67 @@ app.use(express.static('public'));
 // Initialize Gemini AI
 const ai = new GoogleGenAI({});
 
-// API endpoint to chat with Gemini (streaming)
-app.post('/api/chat', async (req, res) => {
+// API endpoint to extract events from text
+app.post('/api/extract-events', async (req, res) => {
   try {
-    const { message } = req.body;
+    const { text } = req.body;
     
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
     }
 
-    console.log(`📩 Received: ${message}`);
+    console.log(`📩 Extracting events from text (${text.length} chars)...`);
 
-    // Set headers for Server-Sent Events (SSE)
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    // Use streaming API
-    const result = await ai.models.generateContentStream({
-      model: "gemini-2.5-flash",
-      contents: message,
+    // Use Gemini with structured output
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash-exp",
+      contents: `Extract all future events from the following text. For each event, identify the title/summary, date and time, and location if available. Return ONLY a JSON array.\n\nText:\n${text}`,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              summary: {
+                type: "string",
+                description: "Event title or summary"
+              },
+              startDateTime: {
+                type: "string",
+                description: "ISO 8601 date-time string (YYYY-MM-DDTHH:MM:SS)"
+              },
+              location: {
+                type: "string",
+                description: "Event location"
+              },
+              description: {
+                type: "string",
+                description: "Additional event details"
+              }
+            },
+            required: ["summary", "startDateTime"]
+          }
+        }
+      }
     });
 
-    // Stream each chunk to the client
-    for await (const chunk of result.stream) {
-      if (chunk.text) {
-        // Send chunk as SSE data
-        res.write(`data: ${JSON.stringify({ text: chunk.text })}\n\n`);
-      }
-    }
-
-    // Signal end of stream
-    res.write('data: [DONE]\n\n');
-    res.end();
+    // Parse the JSON response
+    const events = JSON.parse(response.text);
     
-    console.log(`✅ Stream complete`);
+    // Add IDs to events
+    const eventsWithIds = events.map((event, index) => ({
+      ...event,
+      id: index + 1
+    }));
+
+    console.log(`✅ Extracted ${eventsWithIds.length} events`);
+
+    res.json({ events: eventsWithIds });
 
   } catch (error) {
     console.error('❌ Error:', error.message);
-    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
-    res.end();
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -72,5 +93,3 @@ app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
   console.log(`📱 Open your browser and visit: http://localhost:${PORT}`);
 });
-
-
