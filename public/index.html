@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Event Extractor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 AI Event Extractor</h1>
+            <p>Extract events from any text and generate calendar files using AI</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <h2>📝 Paste Your Text</h2>
+                <textarea 
+                    id="textInput" 
+                    placeholder="Paste any text containing events (emails, schedules, articles, etc.)..."
+                    rows="8"
+                ></textarea>
+                <button id="extractBtn" class="btn btn-primary">🤖 Extract Events</button>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h2>📋 Extracted Events</h2>
+                <div id="eventsList"></div>
+                <div class="actions">
+                    <button id="selectAllBtn" class="btn btn-secondary">Select All</button>
+                    <button id="deselectAllBtn" class="btn btn-secondary">Deselect All</button>
+                    <button id="downloadBtn" class="btn btn-success">📥 Download Calendar</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>AI is analyzing your text...</p>
+            </div>
+
+            <div class="error" id="error" style="display: none;">
+                <p id="errorMessage"></p>
+            </div>
+        </main>
+
+        <footer>
+            <p>Built for URI Hackathon 2025 🎓</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
