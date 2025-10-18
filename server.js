@@ -37,7 +37,7 @@ app.post('/api/extract-events', async (req, res) => {
 
     // Use Gemini with structured output
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       contents: `Extract all future events from the following text. For each event, identify the title/summary, date and time, and location if available. Return ONLY a JSON array.\n\nText:\n${text}`,
       config: {
         responseMimeType: "application/json",
