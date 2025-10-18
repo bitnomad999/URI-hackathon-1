@@ -3,53 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Event Extractor</title>
+    <title>AI Event Extractor - Gemini</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>📅 AI Event Extractor</h1>
-            <p>Extract events from any text and generate calendar files using AI</p>
+            <p class="subtitle">Powered by Google Gemini 2.5 Flash</p>
         </header>
 
-        <main>
-            <div class="input-section">
-                <h2>📝 Paste Your Text</h2>
-                <textarea 
-                    id="textInput" 
-                    placeholder="Paste any text containing events (emails, schedules, articles, etc.)..."
-                    rows="8"
-                ></textarea>
-                <button id="extractBtn" class="btn btn-primary">🤖 Extract Events</button>
+        <!-- Input Section -->
+        <div class="section">
+            <h2>📝 Step 1: Paste Your Text</h2>
+            <p class="info-text">Paste any text containing event information (news articles, emails, schedules, etc.)</p>
+            <textarea 
+                id="inputText" 
+                placeholder="Paste your text here... Example: 'Join us for the Annual Tech Conference on October 25, 2025 at 2:00 PM at the Convention Center.'"
+                rows="8"
+            ></textarea>
+            <div class="button-row">
+                <button id="sampleBtn" class="btn btn-secondary">
+                    Try Sample Data
+                </button>
+                <button id="extractBtn" class="btn btn-primary">
+                    <span id="extractBtnText">🔍 Extract Events</span>
+                    <span id="extractBtnLoader" class="loader" style="display: none;"></span>
+                </button>
             </div>
+        </div>
 
-            <div class="results-section" id="resultsSection" style="display: none;">
-                <h2>📋 Extracted Events</h2>
-                <div id="eventsList"></div>
-                <div class="actions">
-                    <button id="selectAllBtn" class="btn btn-secondary">Select All</button>
-                    <button id="deselectAllBtn" class="btn btn-secondary">Deselect All</button>
-                    <button id="downloadBtn" class="btn btn-success">📥 Download Calendar</button>
-                </div>
-            </div>
-
-            <div class="loading" id="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>AI is analyzing your text...</p>
-            </div>
-
-            <div class="error" id="error" style="display: none;">
-                <p id="errorMessage"></p>
-            </div>
-        </main>
-
-        <footer>
-            <p>Built for URI Hackathon 2025 🎓</p>
-        </footer>
+        <!-- Events Selection Section -->
+        <div class="section" id="eventsSection" style="display: none;">
+            <h2>✅ Step 2: Select Events</h2>
+            <p class="info-text">Choose which events you want to add to your calendar</p>
+            <div id="eventsList" class="events-list"></div>
+            <button id="generateIcsBtn" class="btn btn-success">
+                📥 Download Calendar (.ics)
+            </button>
+        </div>
     </div>
+
+    <footer>
+        <p>Built with Google Gemini AI • <a href="https://github.com/fossnik/URI-hackathon-1" target="_blank">GitHub</a></p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
 </html>
-
