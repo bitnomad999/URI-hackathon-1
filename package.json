@@ -15,6 +15,7 @@
     "@google/genai": "^1.25.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonrepair": "^3.13.1"
   }
 }

@@ -3,6 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { jsonrepair } from 'jsonrepair';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,8 +70,33 @@ app.post('/api/extract-events', async (req, res) => {
       }
     });
 
-    // Parse the JSON response
-    const events = JSON.parse(response.text);
+    // Parse the JSON response with robust error handling
+    let events;
+    try {
+      // Clean the response text (remove markdown code blocks if present)
+      let cleanedText = response.text.trim();
+      if (cleanedText.startsWith('```json')) {
+        cleanedText = cleanedText.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+      } else if (cleanedText.startsWith('```')) {
+        cleanedText = cleanedText.replace(/^```\n?/, '').replace(/\n?```$/, '');
+      }
+      
+      // Try to repair and parse the JSON
+      const repairedJson = jsonrepair(cleanedText);
+      events = JSON.parse(repairedJson);
+      
+      // Ensure it's an array
+      if (!Array.isArray(events)) {
+        throw new Error('Response is not an array');
+      }
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      console.error('Response text:', response.text);
+      return res.status(500).json({ 
+        error: 'Failed to parse AI response',
+        details: parseError.message 
+      });
+    }
     
     // Add IDs to events
     const eventsWithIds = events.map((event, index) => ({
