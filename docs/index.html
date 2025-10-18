@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Extractor - Gemini AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 AI Event Extractor</h1>
+            <p class="subtitle">Powered by Google Gemini 2.5 Flash</p>
+        </header>
+
+        <!-- API Key Section -->
+        <div class="section api-key-section" id="apiKeySection">
+            <h2>🔑 API Key Setup</h2>
+            <p class="info-text">Enter your Gemini API key. It will be stored locally in your browser.</p>
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    id="apiKeyInput" 
+                    placeholder="Enter your Gemini API key..."
+                    autocomplete="off">
+                <button id="saveApiKeyBtn" class="btn btn-primary">Save Key</button>
+            </div>
+            <p class="info-text small">
+                <a href="https://aistudio.google.com/app/apikey" target="_blank">Get your API key here</a>
+            </p>
+            <div id="apiKeyStatus" class="status-message"></div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="section" id="inputSection" style="display: none;">
+            <h2>📝 Step 1: Paste Your Text</h2>
+            <p class="info-text">Paste any text containing event information (news articles, emails, schedules, etc.)</p>
+            <textarea 
+                id="inputText" 
+                placeholder="Paste your text here... Example: 'Join us for the Annual Tech Conference on October 25, 2025 at 2:00 PM at the Convention Center.'"
+                rows="8"
+            ></textarea>
+            <button id="extractBtn" class="btn btn-primary">
+                <span id="extractBtnText">🔍 Extract Events</span>
+                <span id="extractBtnLoader" class="loader" style="display: none;"></span>
+            </button>
+        </div>
+
+        <!-- Events Selection Section -->
+        <div class="section" id="eventsSection" style="display: none;">
+            <h2>✅ Step 2: Select Events</h2>
+            <p class="info-text">Choose which events you want to add to your calendar</p>
+            <div id="eventsList" class="events-list"></div>
+            <button id="generateIcsBtn" class="btn btn-success">
+                📥 Download Calendar (.ics)
+            </button>
+        </div>
+
+        <!-- Sample Data Button -->
+        <div class="section sample-section" id="sampleSection" style="display: none;">
+            <button id="useSampleBtn" class="btn btn-secondary">
+                Try with Sample Data
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Your API key is stored locally and never sent to any server except Google's Gemini API.</p>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
+

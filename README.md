@@ -1,6 +1,21 @@
-# Gemini API Test Project
+# 📅 AI Event Extractor with Gemini
 
-A vanilla JavaScript project using the Google Gen AI SDK to interact with Gemini models.
+Extract events from any text and generate calendar files using Google's Gemini AI.
+
+## 🚀 Two Versions Available
+
+### 1. GitHub Pages Version (Static)
+**✨ NEW!** A fully client-side version perfect for personal use.
+- No server required
+- Users input their own API key
+- Works directly in browser
+- **[View in /docs folder](./docs/)**
+
+### 2. Node.js Server Version
+Original chat interface with streaming support.
+- Secure API key storage on server
+- Web chat interface
+- Command-line tools
 
 ## Prerequisites
 
